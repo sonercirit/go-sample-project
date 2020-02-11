@@ -164,7 +164,8 @@ At Cabify, we use Gitlab and Gitlab CI for our backend development work.
 In this repo you may find a [.gitlab-ci.yml](./.gitlab-ci.yml) file which
 contains some tooling that would simplify the setup and testing of the
 deliverable. This testing can be enabled by simply uncommenting the final
-acceptance stage.
+acceptance stage. Note that the image build should be reproducible within
+the CI environment.
 
 Additionally, you will find a basic Dockerfile which you could use a
 baseline, be sure to modify it as much as needed, but keep the exposed port
