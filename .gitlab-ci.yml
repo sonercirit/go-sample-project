@@ -1,5 +1,4 @@
 stages:
-  - build
   - docker
   - acceptance
 
@@ -17,14 +16,14 @@ stages:
 ## Uncomment the following sections to enable docker, image building and
 ## acceptance
 
-build:
-  stage: build
-  image: golang:1.14 # Add an image to build your service
-  artifacts:
-    paths:
-      - bin/
-  script:
-    - go build
+#build:
+#  stage: build
+#  image: golang:1.14 # Add an image to build your service
+#  artifacts:
+#    paths:
+#      - bin/
+#  script:
+#    - go build
 
 build_image:
   stage: docker
