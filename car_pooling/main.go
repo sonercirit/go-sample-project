@@ -3,9 +3,9 @@ package car_pooling
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"sort"
+	"strconv"
 )
 
 func Init() {
@@ -32,7 +32,6 @@ func Init() {
 		sort.SliceStable(cars, func(i, j int) bool {
 			return cars[i].Seats < cars[j].Seats
 		})
-		log.Println(cars)
 	})
 
 	http.HandleFunc("/journey", func(writer http.ResponseWriter, request *http.Request) {
@@ -52,8 +51,55 @@ func Init() {
 			addGroupToCar(&group, car)
 		}
 		groups = append(groups, &group)
-		log.Println(groups, cars)
 	})
+
+	http.HandleFunc("/dropoff", func(writer http.ResponseWriter, request *http.Request) {
+		if request.Method != http.MethodPost {
+			writer.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		var group *Group
+		var index *int
+		for i, g := range groups {
+
+			err := request.ParseForm()
+			if err != nil {
+				writer.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			id, err := strconv.Atoi(request.Form.Get("ID"))
+			if err != nil {
+				writer.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			if g.Id == id {
+				group = g
+				index = &i
+			}
+		}
+
+		if group == nil {
+			writer.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		dropoff(index, group)
+	})
+}
+
+func dropoff(index *int, group *Group) {
+	groups = append(groups[:*index], groups[*index+1:]...)
+	freeSeats := *group.Car.FreeSeats + group.People
+	group.Car.FreeSeats = &freeSeats
+
+	carGroups := group.Car.Groups
+	for i, g := range carGroups {
+		if g.Id == group.Id {
+			group.Car.Groups = append(carGroups[:i], carGroups[i+1:]...)
+		}
+	}
 }
 
 func addGroupToCar(group *Group, car *Car) {
