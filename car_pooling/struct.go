@@ -13,5 +13,5 @@ type Group struct {
 	Car    *Car
 }
 
-var cars []Car
-var groups []Group
+var cars []*Car
+var groups []*Group

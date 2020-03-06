@@ -47,7 +47,38 @@ func Init() {
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		groups = append(groups, group)
-		log.Println(groups)
+		car := findAvailableCar(&group)
+		if car != nil {
+			addGroupToCar(&group, car)
+		}
+		groups = append(groups, &group)
+		log.Println(groups, cars)
 	})
+}
+
+func addGroupToCar(group *Group, car *Car) {
+	car.Groups = append(car.Groups, group)
+	group.Car = car
+
+	if car.FreeSeats == nil {
+		freeSeats := car.Seats - group.People
+		car.FreeSeats = &freeSeats
+	} else {
+		freeSeats := *car.FreeSeats - group.People
+		car.FreeSeats = &freeSeats
+	}
+}
+
+func findAvailableCar(group *Group) *Car {
+	for _, car := range cars {
+		people := group.People
+
+		hasEnoughSeat := car.Seats >= people
+		hasEnoughFreeSeat := car.FreeSeats == nil || *car.FreeSeats >= people
+
+		if hasEnoughSeat && hasEnoughFreeSeat {
+			return car
+		}
+	}
+	return nil
 }
