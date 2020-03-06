@@ -4,7 +4,7 @@ type Car struct {
 	Id        int
 	Seats     int
 	FreeSeats *int
-	Groups    []*Group
+	Groups    []*Group `json:"-"`
 }
 
 type Group struct {

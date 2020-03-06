@@ -3,6 +3,7 @@ package car_pooling
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"sort"
 	"strconv"
@@ -14,7 +15,10 @@ func Init() {
 			writer.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
-		_, _ = fmt.Fprint(writer, "OK")
+		_, err := fmt.Fprint(writer, "OK")
+		if err != nil {
+			log.Println(err)
+		}
 	})
 
 	http.HandleFunc("/cars", func(writer http.ResponseWriter, request *http.Request) {
@@ -86,6 +90,48 @@ func Init() {
 		}
 
 		dropoff(index, group)
+	})
+
+	http.HandleFunc("/locate", func(writer http.ResponseWriter, request *http.Request) {
+		if request.Method != http.MethodPost {
+			writer.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		var group *Group
+		for _, g := range groups {
+
+			err := request.ParseForm()
+			if err != nil {
+				writer.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			id, err := strconv.Atoi(request.Form.Get("ID"))
+			if err != nil {
+				writer.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			if g.Id == id {
+				group = g
+			}
+		}
+
+		if group == nil {
+			writer.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		if group.Car == nil {
+			writer.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		writer.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(writer).Encode(group.Car)
+		if err != nil {
+			log.Println(err)
+		}
 	})
 }
 
