@@ -1,8 +1,17 @@
 package car_pooling
 
-type Cars []struct {
-	Id    int
-	Seats int
+type Car struct {
+	Id        int
+	Seats     int
+	FreeSeats *int
+	Groups    []*Group
 }
 
-var cars Cars
+type Group struct {
+	Id     int
+	People int
+	Car    *Car
+}
+
+var cars []Car
+var groups []Group

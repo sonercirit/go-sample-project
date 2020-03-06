@@ -3,7 +3,9 @@ package car_pooling
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"sort"
 )
 
 func Init() {
@@ -26,5 +28,26 @@ func Init() {
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
+
+		sort.SliceStable(cars, func(i, j int) bool {
+			return cars[i].Seats < cars[j].Seats
+		})
+		log.Println(cars)
+	})
+
+	http.HandleFunc("/journey", func(writer http.ResponseWriter, request *http.Request) {
+		if request.Method != http.MethodPost {
+			writer.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		var group Group
+		err := json.NewDecoder(request.Body).Decode(&group)
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		groups = append(groups, group)
+		log.Println(groups)
 	})
 }
