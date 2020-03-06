@@ -25,7 +25,7 @@ stages:
      paths:
        - bin/
    script:
-     - echo do something to build the binary or whatever
+     - go build
 
  build_image:
    stage: docker

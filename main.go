@@ -10,6 +10,7 @@ import (
 
 func main() {
 	car_pooling.Init()
+	log.Println("Server will start at: " + os.Getenv("HTTP_PORT"))
 	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("HTTP_PORT")), nil)
 	if err != nil {
 		log.Println(err)
