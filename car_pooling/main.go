@@ -63,24 +63,25 @@ func Init() {
 			return
 		}
 
+		err := request.ParseForm()
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		id, err := strconv.Atoi(request.Form.Get("ID"))
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		var group *Group
 		var index *int
 		for i, g := range groups {
 
-			err := request.ParseForm()
-			if err != nil {
-				writer.WriteHeader(http.StatusBadRequest)
-				return
-			}
-			id, err := strconv.Atoi(request.Form.Get("ID"))
-			if err != nil {
-				writer.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
 			if g.Id == id {
 				group = g
 				index = &i
+				break
 			}
 		}
 
@@ -90,6 +91,7 @@ func Init() {
 		}
 
 		dropoff(index, group)
+		checkForNewSpaces()
 	})
 
 	http.HandleFunc("/locate", func(writer http.ResponseWriter, request *http.Request) {
@@ -98,22 +100,23 @@ func Init() {
 			return
 		}
 
+		err := request.ParseForm()
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		id, err := strconv.Atoi(request.Form.Get("ID"))
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		var group *Group
 		for _, g := range groups {
 
-			err := request.ParseForm()
-			if err != nil {
-				writer.WriteHeader(http.StatusBadRequest)
-				return
-			}
-			id, err := strconv.Atoi(request.Form.Get("ID"))
-			if err != nil {
-				writer.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
 			if g.Id == id {
 				group = g
+				break
 			}
 		}
 
@@ -128,11 +131,22 @@ func Init() {
 		}
 
 		writer.Header().Set("Content-Type", "application/json")
-		err := json.NewEncoder(writer).Encode(group.Car)
+		err = json.NewEncoder(writer).Encode(group.Car)
 		if err != nil {
 			log.Println(err)
 		}
 	})
+}
+
+func checkForNewSpaces() {
+	for _, group := range groups {
+		if group.Car == nil {
+			car := findAvailableCar(group)
+			if car != nil {
+				addGroupToCar(group, car)
+			}
+		}
+	}
 }
 
 func dropoff(index *int, group *Group) {
@@ -144,6 +158,7 @@ func dropoff(index *int, group *Group) {
 	for i, g := range carGroups {
 		if g.Id == group.Id {
 			group.Car.Groups = append(carGroups[:i], carGroups[i+1:]...)
+			break
 		}
 	}
 }
