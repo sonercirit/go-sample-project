@@ -32,6 +32,7 @@ func Init() {
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		groups = nil
 
 		sort.SliceStable(cars, func(i, j int) bool {
 			return cars[i].Seats < cars[j].Seats
