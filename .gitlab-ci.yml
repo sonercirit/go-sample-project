@@ -20,7 +20,7 @@ stages:
 
  build:
    stage: build
-   image: # Add an image to build your service
+   image: golang:1.14 # Add an image to build your service
    artifacts:
      paths:
        - bin/
