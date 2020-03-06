@@ -28,7 +28,7 @@ func Init() {
 		}
 
 		err := json.NewDecoder(request.Body).Decode(&cars)
-		if err != nil {
+		if err != nil || request.Header.Get("Content-Type") != "application/json" {
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -47,7 +47,7 @@ func Init() {
 
 		var group Group
 		err := json.NewDecoder(request.Body).Decode(&group)
-		if err != nil {
+		if err != nil || request.Header.Get("Content-Type") != "application/json" {
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
